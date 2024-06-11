@@ -37,7 +37,8 @@ const FunnelSettings: React.FC<FunnelSettingsProps> = async ({
   const products = await getConnectAccountProducts(
     subaccountDetails.connectAccountId
   )
-
+  console.log('subaccountDetails.connectAccountId:', subaccountDetails.connectAccountId)
+  console.log('products:', products)
   return (
     <div className="flex gap-4 flex-col xl:!flex-row">
       <Card className="flex-1 flex-shrink">

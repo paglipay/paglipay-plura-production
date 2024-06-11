@@ -22,8 +22,14 @@ export default authMiddleware({
       .get('host')
       ?.split(`${process.env.NEXT_PUBLIC_DOMAIN}`)
       .filter(Boolean)[0]
-
+    // console.log('customSubDomain:', customSubDomain)
     if (customSubDomain) {
+
+      // console.log('true customSubDomain:', `/${customSubDomain}${pathWithSearchParams}`, req.url)
+      // console.log('fix true customSubDomain:', `/${customSubDomain}${pathWithSearchParams}`, req.url)
+      // return NextResponse.rewrite(
+      //   new URL(`/${customSubDomain}${pathWithSearchParams}`, req.url)
+      // )
       return NextResponse.rewrite(
         new URL(`/${customSubDomain}${pathWithSearchParams}`, req.url)
       )
@@ -31,12 +37,14 @@ export default authMiddleware({
 
     if (url.pathname === '/sign-in' || url.pathname === '/sign-up') {
       return NextResponse.redirect(new URL(`/agency/sign-in`, req.url))
+      // return NextResponse.redirect(new URL(`/agency/sign-in`))
     }
 
     if (
       url.pathname === '/' ||
       (url.pathname === '/site' && url.host === process.env.NEXT_PUBLIC_DOMAIN)
     ) {
+      console.log('/site', req.url)
       return NextResponse.rewrite(new URL('/site', req.url))
     }
 
