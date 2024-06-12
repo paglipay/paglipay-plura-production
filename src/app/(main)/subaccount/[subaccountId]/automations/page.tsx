@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Check, ExternalLink, LucideEdit } from "lucide-react";
 import { getMedia } from "@/lib/queries";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CreateButton from "./_components/create-contact-btn";
 import {
   DragDropContext,
@@ -31,7 +31,55 @@ type Props = {
 };
 
 const AutomationsPage = async ({ params }: Props) => {
+  const inputRef = useRef(null);
+  const [port, setPort] = useState<any | null>(null);
+  const [reader, setReader] = useState<any | null>(null);
   const data = await getMedia(params.subaccountId);
+
+  async function disconnectSerial() {
+    if (!port) {
+      console.error("Serial port not connected.");
+      return;
+    }
+    if (!reader) {
+      console.error("Reader not available.");
+      return;
+    }
+    // setDtree((dtree) => {
+    //   return {
+    //     ...dtree,
+    //     output: [...dtree["output"], "Disconneciting...\n"],
+    //   };
+    // });
+
+    try {
+      await reader.cancel();
+      await port.close();
+      console.log("Disconnected from serial port.");
+      setPort(null);
+      // setConnected(false);
+    } catch (error) {
+      console.error("Error disconnecting from serial port:", error);
+      // setConnected(true);
+    }
+  }
+
+  async function connectSerial() {
+    let selectedPort;
+
+    try {
+      selectedPort = await (navigator as any).serial.requestPort();
+      await selectedPort.open({ baudRate: 9600 });
+      console.log("Connected to serial port:", selectedPort);
+      // startReading(selectedPort);
+      setPort(selectedPort);
+      // setConnected(true);
+      // setIsHost(props.id);
+    } catch (err) {
+      console.error("Error connecting to serial port:", err);
+      // setConnected(false);
+    }
+  }
 
   return (
     <BlurPage>
@@ -80,6 +128,15 @@ const AutomationsPage = async ({ params }: Props) => {
                               <CreateButton
                                 subaccountId={params.subaccountId}
                               />
+                              <Button
+                                style={{ marginTop: "auto" }}
+                                id="connectButton"
+                                onClick={async () => {
+                                  await connectSerial();
+                                }}
+                              >
+                                Connect to Local Serial Console
+                              </Button>
                             </div>
                           </div>
                         </CardDescription>
